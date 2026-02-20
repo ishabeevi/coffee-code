@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard – LifeLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🏆 Donor Leaderboard</h2>
+    <p class="sub">Top donors ranked by points</p>
+</div>
+
+<div class="leaderboard-table-wrap">
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Donor</th>
+                <th>Blood Group</th>
+                <th>Location</th>
+                <th>Points</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for donor in top_donors %}
+            <tr class="{% if loop.index <= 3 %}top-{{ loop.index }}{% endif %}">
+                <td>
+                    {% if loop.index == 1 %}🥇
+                    {% elif loop.index == 2 %}🥈
+                    {% elif loop.index == 3 %}🥉
+                    {% else %}{{ loop.index }}{% endif %}
+                </td>
+                <td>
+                    <div class="lb-user">
+                        <div class="lb-avatar">{{ donor.name[0].upper() }}</div>
+                        <span>{{ donor.name }}</span>
+                    </div>
+                </td>
+                <td><span class="blood-badge">{{ donor.blood_group }}</span></td>
+                <td>{{ donor.location.title() }}</td>
+                <td><strong class="pts-count">{{ donor.points }}</strong></td>
+                <td>
+                    {% if donor.available %}
+                    <span class="badge-avail">🟢 Available</span>
+                    {% else %}
+                    <span class="badge-unavail">🔴 Unavailable</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="empty-cell">No donors yet. Be the first to donate!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="points-info">
+    <h3>How to earn points</h3>
+    <div class="points-grid">
+        <div class="points-card">
+            <span class="pts-icon">🩸</span>
+            <strong>+10 pts</strong>
+            <p>Successful Donation</p>
+        </div>
+        <div class="points-card highlight-card">
+            <span class="pts-icon">🚨</span>
+            <strong>+15 pts</strong>
+            <p>Emergency Response</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

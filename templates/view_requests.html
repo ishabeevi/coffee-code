@@ -1,33 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>All Requests</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<div class="navbar">
-    <a href="/">Home</a>
-    <a href="/request">Post Request</a>
-    <a href="/requests">View Requests</a>
-    <a href="/login">Login</a>
+{% extends "base.html" %}
+{% block title %}Blood Requests – LifeLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🩸 Blood Requests</h2>
+    <a href="/request" class="btn-primary">+ Post Request</a>
 </div>
-<div class="container">
-    <h2>Blood Requests</h2>
 
-    {% for r in requests %}
-        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-            <p><strong>Blood Group:</strong> {{ r.blood_group }}</p>
-            <p><strong>Location:</strong> {{ r.location }}</p>
-            <p><strong>Hospital:</strong> {{ r.hospital }}</p>
+<!-- Tabs -->
+<div class="tabs">
+    <a href="/requests?tab=all" class="tab {% if tab == 'all' %}active{% endif %}">All Requests</a>
+    <a href="/requests?tab=emergency" class="tab {% if tab == 'emergency' %}active{% endif %}">🚨 Emergency</a>
+</div>
 
-            {% if r.emergency %}
-                <p style="color:red;"><strong>🚨 EMERGENCY</strong></p>
+{% set display = emergency_requests if tab == 'emergency' else all_requests %}
+
+{% if display %}
+<div class="request-grid">
+    {% for req in display %}
+    <div class="request-card {% if req.emergency %}emergency-card-bg{% endif %}">
+        <div class="rc-top">
+            <span class="blood-badge">{{ req.blood_group }}</span>
+            {% if req.emergency %}
+            <span class="badge-emergency">🚨 Emergency</span>
+            {% else %}
+            <span class="badge-normal">🟢 Normal</span>
             {% endif %}
         </div>
+        <div class="rc-info">
+            <div class="rc-row"><span class="rc-label">🏥 Hospital</span> {{ req.hospital }}</div>
+            <div class="rc-row"><span class="rc-label">📍 Location</span> {{ req.location.title() }}</div>
+            <div class="rc-row"><span class="rc-label">📅 Posted</span> {{ req.created_at }}</div>
+        </div>
+        <a href="/match/{{ req.id }}" class="btn-primary full-width mt-sm">🔍 Find Matched Donors</a>
+    </div>
     {% endfor %}
-
-    <a href="/request">Create New Request</a>
 </div>
-
-</body>
-</html>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">🩸</div>
+    <h3>No requests found</h3>
+    <p>Be the first to post a blood request.</p>
+    <a href="/request" class="btn-primary">Post a Request</a>
+</div>
+{% endif %}
+{% endblock %}

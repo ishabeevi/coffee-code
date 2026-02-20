@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Profile – LifeLink{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="profile-card">
+        <div class="profile-avatar">{{ user.name[0].upper() }}</div>
+        <h2 class="profile-name">{{ user.name }}</h2>
+        <div class="profile-blood">{{ user.blood_group }}</div>
+
+        <div class="profile-info-grid">
+            <div class="pi-item">
+                <span class="pi-label">📍 Location</span>
+                <span class="pi-value">{{ user.location.title() }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">📞 Contact</span>
+                <span class="pi-value">{{ user.contact }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">⭐ Points</span>
+                <span class="pi-value points-count">{{ user.points }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">🩸 Last Donation</span>
+                <span class="pi-value">{{ user.last_donation if user.last_donation else 'Never' }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">⏳ Can Donate?</span>
+                <span class="pi-value {% if user.can_donate %}text-green{% else %}text-red{% endif %}">
+                    {% if user.can_donate %}Yes ✅{% else %}No (90-day wait) ❌{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="availability-section">
+            <p>Your Status:
+                <strong class="{% if user.available %}text-green{% else %}text-red{% endif %}">
+                    {% if user.available %}🟢 Available{% else %}🔴 Not Available{% endif %}
+                </strong>
+            </p>
+            <a href="/toggle-availability" class="btn-secondary full-width">
+                {% if user.available %}Mark as Unavailable{% else %}Mark as Available{% endif %}
+            </a>
+        </div>
+
+        <div class="profile-actions">
+            <a href="/request" class="btn-primary full-width">🚑 Post Blood Request</a>
+            <a href="/leaderboard" class="btn-secondary full-width">🏆 View Leaderboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

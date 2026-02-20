@@ -1,35 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Blood Request</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<div class="navbar">
-    <a href="/">Home</a>
-    <a href="/request">Post Request</a>
-    <a href="/requests">View Requests</a>
-    <a href="/login">Login</a>
+{% extends "base.html" %}
+{% block title %}Post Blood Request – LifeLink{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-card">
+        <div class="form-header">
+            <span class="form-icon">🏥</span>
+            <h2>Post Blood Request</h2>
+            <p>Help us find the right donor fast</p>
+        </div>
+        <form method="POST" action="/request">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Blood Group Needed</label>
+                    <select name="blood_group" required>
+                        <option value="">Select</option>
+                        {% for bg in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+                        <option value="{{ bg }}">{{ bg }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Location / City</label>
+                    <input type="text" name="location" placeholder="e.g. Kochi" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Hospital Name</label>
+                <input type="text" name="hospital" placeholder="e.g. AIIMS Delhi" required>
+            </div>
+
+            <div class="form-group">
+                <label>Urgency Level</label>
+                <div class="urgency-selector">
+                    <label class="urgency-option">
+                        <input type="radio" name="urgency" value="normal" checked>
+                        <span class="urgency-badge normal">🟢 Normal</span>
+                    </label>
+                    <label class="urgency-option">
+                        <input type="radio" name="urgency" value="emergency">
+                        <span class="urgency-badge emergency-badge">🚨 Emergency</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary full-width">Post Request →</button>
+        </form>
+        <div class="form-footer">
+            <a href="/requests">← Back to all requests</a>
+        </div>
+    </div>
 </div>
-<div class="container">
-    <h2>Create Blood Request</h2>
-
-    <form method="POST" action="/request">
-        <input type="text" name="blood_group" placeholder="Required Blood Group" required>
-        <input type="text" name="location" placeholder="Location" required>
-        <input type="text" name="hospital" placeholder="Hospital Name" required>
-
-        <label>
-            <input type="checkbox" name="emergency">
-            Emergency 🚨
-        </label>
-
-        <button type="submit">Post Request</button>
-    </form>
-
-    <br>
-    <a href="/requests">View All Requests</a>
-</div>
-
-</body>
-</html>
+{% endblock %}

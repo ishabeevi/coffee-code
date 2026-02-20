@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Top Matched Donors – LifeLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>🔍 Top Matched Donors</h2>
+        <p class="sub">
+            For <strong>{{ blood_req.blood_group }}</strong> at
+            <strong>{{ blood_req.hospital }}</strong>, {{ blood_req.location.title() }}
+            {% if blood_req.emergency %}<span class="badge-emergency ml-sm">🚨 Emergency</span>{% endif %}
+        </p>
+    </div>
+    <a href="/requests" class="btn-secondary">← Back</a>
+</div>
+
+{% if matched_donors %}
+<div class="match-list">
+    {% for donor in matched_donors %}
+    <div class="match-card">
+        <div class="match-avatar">{{ donor.name[0].upper() }}</div>
+        <div class="match-info">
+            <div class="match-name">{{ donor.name }}</div>
+            <div class="match-details">
+                <span class="blood-badge">{{ donor.blood_group }}</span>
+                <span class="loc-tag">📍 {{ donor.location.title() }}</span>
+                {% if donor.location.strip().lower() == blood_req.location.strip().lower() %}
+                <span class="same-loc">✅ Same City</span>
+                {% endif %}
+                <span class="pts-tag">⭐ {{ donor.points }} pts</span>
+            </div>
+            <div class="match-status {% if donor.available %}status-avail{% else %}status-unavail{% endif %}">
+                {% if donor.available %}🟢 Available{% else %}🔴 Unavailable{% endif %}
+            </div>
+        </div>
+        <div class="match-action">
+            {% if user and user.id == donor.id %}
+            <a href="/donate/{{ blood_req.id }}" class="btn-primary">Confirm Donation</a>
+            {% else %}
+            <a href="tel:{{ donor.contact }}" class="btn-secondary">📞 Contact</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if user %}
+<div class="donate-self">
+    <p>Are you available to donate?</p>
+    <a href="/donate/{{ blood_req.id }}" class="btn-primary">🩸 I'll Donate</a>
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>No eligible donors found</h3>
+    <p>No donors match this request right now. Try later or expand the location.</p>
+    <a href="/requests" class="btn-secondary">← Back to Requests</a>
+</div>
+{% endif %}
+{% endblock %}

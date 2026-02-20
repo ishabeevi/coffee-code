@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Groups – LifeLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>👥 Blood Group Communities</h2>
+    <p class="sub">Donors grouped by blood type and location</p>
+</div>
+
+{% if groups %}
+<div class="groups-grid">
+    {% for (blood_group, location), members in groups %}
+    <div class="group-card">
+        <div class="group-header">
+            <span class="blood-badge lg">{{ blood_group }}</span>
+            <span class="group-loc">📍 {{ location }}</span>
+            <span class="group-count">{{ members|length }} donor{{ 's' if members|length != 1 }}</span>
+        </div>
+        <div class="group-members">
+            {% for m in members[:5] %}
+            <div class="gm-row">
+                <div class="gm-avatar">{{ m.name[0].upper() }}</div>
+                <div class="gm-info">
+                    <span class="gm-name">{{ m.name }}</span>
+                    <span class="gm-pts">⭐ {{ m.points }} pts</span>
+                </div>
+                <span class="{% if m.available %}badge-avail{% else %}badge-unavail{% endif %}">
+                    {% if m.available %}🟢{% else %}🔴{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+            {% if members|length > 5 %}
+            <p class="more-members">+{{ members|length - 5 }} more donors</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">👥</div>
+    <h3>No groups yet</h3>
+    <p>Groups appear automatically when donors register.</p>
+    <a href="/register" class="btn-primary">Register as Donor</a>
+</div>
+{% endif %}
+{% endblock %}

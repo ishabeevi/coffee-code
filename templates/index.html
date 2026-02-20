@@ -1,28 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Blood Donation App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<div class="navbar">
-    <a href="/">Home</a>
-    <a href="/request">Post Request</a>
-    <a href="/requests">View Requests</a>
-    <a href="/login">Login</a>
+{% extends "base.html" %}
+{% block title %}LifeLink – Blood Donation App{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🩸 Blood Donation Platform</div>
+        <h1>Every Drop <span class="accent">Saves a Life</span></h1>
+        <p class="hero-sub">Connect blood donors and recipients instantly. Smart matching, real-time updates, and a
+            community that cares.</p>
+        <div class="hero-actions">
+            {% if user %}
+            <a href="/request" class="btn-primary btn-lg">🚑 Post Blood Request</a>
+            <a href="/requests" class="btn-secondary btn-lg">View Requests</a>
+            {% else %}
+            <a href="/register" class="btn-primary btn-lg">Join as Donor</a>
+            <a href="/login" class="btn-secondary btn-lg">Login</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-card">
+            <div class="stat-icon">🏥</div>
+            <div class="stat-label">Smart Matching</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚨</div>
+            <div class="stat-label">Emergency Priority</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-label">Points & Rewards</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Group System</div>
+        </div>
+    </div>
 </div>
-<div class="container">
-    <h2>🩸 Blood Donation System</h2>
 
-    <p>Save Lives. Donate Blood.</p>
-
-    <br>
-
-    <a href="/register"><button>Register</button></a>
-    <a href="/login"><button>Login</button></a>
-    <a href="/request"><button>Post Blood Request</button></a>
-    <a href="/requests"><button>View Requests</button></a>
+<div class="quick-links">
+    <a href="/requests?tab=emergency" class="quick-card emergency-card">
+        <span class="qc-icon">🚨</span>
+        <div>
+            <strong>Emergency Requests</strong>
+            <p>View urgent blood needs</p>
+        </div>
+    </a>
+    <a href="/groups" class="quick-card">
+        <span class="qc-icon">👥</span>
+        <div>
+            <strong>Blood Groups</strong>
+            <p>Find your group community</p>
+        </div>
+    </a>
+    <a href="/leaderboard" class="quick-card">
+        <span class="qc-icon">🏆</span>
+        <div>
+            <strong>Leaderboard</strong>
+            <p>Top donors this month</p>
+        </div>
+    </a>
 </div>
-
-</body>
-</html>
+{% endblock %}
