@@ -80,29 +80,3 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-# ---------------------
-# Create Blood Request
-# ---------------------
-@app.route('/request', methods=['GET', 'POST'])
-def create_request():
-    if request.method == 'POST':
-        new_request = BloodRequest(
-            blood_group=request.form['blood_group'],
-            location=request.form['location'],
-            hospital=request.form['hospital'],
-            emergency=True if request.form.get('emergency') else False
-        )
-
-        db.session.add(new_request)
-        db.session.commit()
-
-        return redirect('/requests')
-
-    return render_template('request.html')
-# ---------------------
-# View Requests
-# ---------------------
-@app.route('/requests')
-def view_requests():
-    all_requests = BloodRequest.query.all()
-    return render_template('view_requests.html', requests=all_requests)

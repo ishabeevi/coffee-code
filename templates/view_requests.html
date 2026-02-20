@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Requests</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Blood Requests</h2>
+
+    {% for r in requests %}
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+            <p><strong>Blood Group:</strong> {{ r.blood_group }}</p>
+            <p><strong>Location:</strong> {{ r.location }}</p>
+            <p><strong>Hospital:</strong> {{ r.hospital }}</p>
+
+            {% if r.emergency %}
+                <p style="color:red;"><strong>🚨 EMERGENCY</strong></p>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <a href="/request">Create New Request</a>
+</div>
+
+</body>
+</html>
