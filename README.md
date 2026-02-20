@@ -6,23 +6,23 @@
 
 ## Basic Details
 
-### Team Name: [Name]
+### Team Name: [Coffee & Code]
 
 ### Team Members
-- Member 1: [Name] - [College]
-- Member 2: [Name] - [College]
+- Member 1: [Ayisha Beevi A S] - [College of Engineering Attingal]
+- Member 2: [Asna Sajeer] - [College of Engineering Attingal]
 
 ### Hosted Project Link
-[mention your project hosted link here]
+[(https://github.com/ishabeevi/coffee-code.git)]
 
 ### Project Description
-[2-3 lines about what your project does]
+[Our project is a blood donation finder app.Which create a efficient connection between the reciever and the donor.]
 
 ### The Problem statement
-[What problem are you solving?]
+[Often finding a donor is not easy. Everyone is looking them through the social media.But guess what it is not effient ,it idoesnt find the one who want to donate.So it is a serious issue.So we decided to create this app which connects the one who needs and the one who wants to donate.]
 
 ### The Solution
-[How are you solving it?]
+[We created a app which will connects the one who needs and the one who wants to donate.and this app will be working as a game which will be feels the blood donation is a achievement.]
 
 ---
 
