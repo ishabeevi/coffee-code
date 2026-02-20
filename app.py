@@ -101,7 +101,21 @@ def create_request():
 # ---------------------
 # View Requests
 # ---------------------
-@app.route('/requests')
 def view_requests():
     all_requests = BloodRequest.query.all()
     return render_template('view_requests.html', requests=all_requests)
+@app.route('/')
+def home():
+    return render_template('index.html')
+@app.route('/')
+def home():
+    return render_template('login.html')
+@app.route('/')
+def home():
+    return render_template('register.html')
+@app.route('/')
+def home():
+    return render_template('request.html')
+@app.route('/')
+def home():
+    return render_template('view_requests.html')
