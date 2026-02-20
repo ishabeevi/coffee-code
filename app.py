@@ -19,6 +19,15 @@ class User(db.Model):
     location = db.Column(db.String(100))
     contact = db.Column(db.String(15))
     password = db.Column(db.String(200))
+# ---------------------
+# Blood Request Model
+# ---------------------
+class BloodRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    blood_group = db.Column(db.String(10))
+    location = db.Column(db.String(100))
+    hospital = db.Column(db.String(100))
+    emergency = db.Column(db.Boolean, default=False)
 
 # ---------------------
 # Home Route
