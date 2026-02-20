@@ -71,6 +71,7 @@ def login():
             return "Invalid Credentials"
     
     return render_template('login.html')
+    return redirect('/request')
 
 # ---------------------
 # Run App
