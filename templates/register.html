@@ -1,10 +1,26 @@
-<h2>Register</h2>
-<form method="POST">
-    Name: <input type="text" name="name" required><br><br>
-    Blood Group: <input type="text" name="blood_group" required><br><br>
-    Location: <input type="text" name="location" required><br><br>
-    Contact: <input type="text" name="contact" required><br><br>
-    Password: <input type="password" name="password" required><br><br>
-    <button type="submit">Register</button>
-</form>
-<a href="/login">Already have an account?</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Blood Donation - Register</h2>
+
+    <form method="POST">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="text" name="blood_group" placeholder="Blood Group (A+, O-, etc)" required>
+        <input type="text" name="location" placeholder="Location" required>
+        <input type="text" name="contact" placeholder="Contact Number" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <br>
+    <a href="/login">Already have an account? Login</a>
+</div>
+
+</body>
+</html>
