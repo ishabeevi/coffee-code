@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Notifications – LifeLink{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🔔 Your Notifications</h2>
+    <p class="sub">Stay updated on blood requests and community activities</p>
+</div>
+
+{% if notifications %}
+<div class="match-list">
+    {% for notif in notifications %}
+    <div class="match-card {% if not notif.is_read %}nav-pill{% endif %}"
+        style="border-left: 5px solid {% if notnotif.is_read %}var(--rose){% else %}var(--border){% endif %}; transition: transform 0.2s;">
+        <div class="match-avatar">
+            {% if notnotif.is_read %}✨{% else %}🔔{% endif %}
+        </div>
+        <div class="match-info">
+            <div class="match-name">{{ notif.message }}</div>
+            <div class="match-status" style="color: var(--muted);">
+                {{ notif.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </div>
+        </div>
+        <div class="match-action">
+            {% if notif.is_read %}
+            {% if notif.req_id %}
+            <a href="/match/{{ notif.req_id }}" class="btn-secondary">View Request</a>
+            {% endif %}
+            {% else %}
+            <a href="/notifications/read/{{ notif.id }}" class="btn-primary">Mark as Read & View</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">🔔</div>
+    <h3>No notifications yet</h3>
+    <p>You'll be notified when a compatible blood request is posted in your area.</p>
+    <a href="/" class="btn-primary">Back to Home</a>
+</div>
+{% endif %}
+{% endblock %}

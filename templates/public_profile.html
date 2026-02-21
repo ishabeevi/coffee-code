@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ target_user.name }}'s Profile – LifeLink{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="profile-card">
+        <div class="profile-avatar">{{ target_user.name[0].upper() }}</div>
+        <h2 class="profile-name">{{ target_user.name }}</h2>
+        <div class="profile-blood">{{ target_user.blood_group }}</div>
+
+        <div class="profile-info-grid">
+            <div class="pi-item">
+                <span class="pi-label">📍 Location</span>
+                <span class="pi-value">{{ target_user.location.title() }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">📞 Contact</span>
+                <span class="pi-value">{{ target_user.contact }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">⭐ Points</span>
+                <span class="pi-value points-count">{{ target_user.points }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">🎂 Age</span>
+                <span class="pi-value">{{ target_user.age if target_user.age is not none else 'N/A' }} yrs</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">🩸 Last Donation</span>
+                <span class="pi-value">{{ target_user.last_donation if target_user.last_donation else 'Never' }}</span>
+            </div>
+            <div class="pi-item">
+                <span class="pi-label">⏳ Can Donate?</span>
+                {% if not target_user.age_eligible %}
+                <span class="pi-value text-red">No – Age ineligible ❌</span>
+                {% elif target_user.can_donate %}
+                <span class="pi-value text-green">Yes ✅</span>
+                {% else %}
+                {% set days_left = 90 - (today - target_user.last_donation).days %}
+                <span class="pi-value text-red">No – {{ days_left }}d wait ❌</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="availability-section">
+            <p>Status:
+                <strong class="{% if target_user.available %}text-green{% else %}text-red{% endif %}">
+                    {% if target_user.available %}🟢 Available{% else %}🔴 Not Available{% endif %}
+                </strong>
+            </p>
+        </div>
+
+        <div class="profile-actions">
+            <a href="tel:{{ target_user.contact }}" class="btn-primary full-width">📞 Call Donor Now</a>
+            <a href="/groups" class="btn-secondary full-width">🔙 Back to Groups</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -18,26 +18,29 @@
             {% endif %}
         </div>
     </div>
+    {% if user %}
     <div class="hero-stats">
-        <div class="stat-card">
+        <a href="/requests" class="stat-card">
             <div class="stat-icon">🏥</div>
             <div class="stat-label">Smart Matching</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/requests?tab=emergency" class="stat-card">
             <div class="stat-icon">🚨</div>
             <div class="stat-label">Emergency Priority</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/leaderboard" class="stat-card">
             <div class="stat-icon">🏆</div>
             <div class="stat-label">Points & Rewards</div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="/groups" class="stat-card">
             <div class="stat-icon">👥</div>
             <div class="stat-label">Group System</div>
-        </div>
+        </a>
     </div>
+    {% endif %}
 </div>
 
+{% if user %}
 <div class="quick-links">
     <a href="/requests?tab=emergency" class="quick-card emergency-card">
         <span class="qc-icon">🚨</span>
@@ -61,4 +64,5 @@
         </div>
     </a>
 </div>
+{% endif %}
 {% endblock %}

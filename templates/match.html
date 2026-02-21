@@ -18,9 +18,9 @@
 <div class="match-list">
     {% for donor in matched_donors %}
     <div class="match-card">
-        <div class="match-avatar">{{ donor.name[0].upper() }}</div>
+        <a href="/profile/{{ donor.id }}" class="match-avatar">{{ donor.name[0].upper() }}</a>
         <div class="match-info">
-            <div class="match-name">{{ donor.name }}</div>
+            <a href="/profile/{{ donor.id }}" class="match-name">{{ donor.name }}</a>
             <div class="match-details">
                 <span class="blood-badge">{{ donor.blood_group }}</span>
                 <span class="loc-tag">📍 {{ donor.location.title() }}</span>

@@ -9,19 +9,31 @@
 
 {% if groups %}
 <div class="groups-grid">
-    {% for (blood_group, location), members in groups %}
+    {% for location, members in groups %}
     <div class="group-card">
         <div class="group-header">
-            <span class="blood-badge lg">{{ blood_group }}</span>
             <span class="group-loc">📍 {{ location }}</span>
             <span class="group-count">{{ members|length }} donor{{ 's' if members|length != 1 }}</span>
         </div>
         <div class="group-members">
+            <!-- Blood group breakdown for this location -->
+            <div
+                style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; padding: 10px; background: var(--surface2); border-radius: 12px;">
+                {% set counts = {} %}
+                {% for m in members %}
+                {% set _ = counts.update({m.blood_group: counts.get(m.blood_group, 0) + 1}) %}
+                {% endfor %}
+                {% for bg, count in counts.items()|sort %}
+                <span class="blood-badge" style="font-size: 0.75rem;">{{ bg }}: {{ count }}</span>
+                {% endfor %}
+            </div>
+
             {% for m in members[:5] %}
             <div class="gm-row">
-                <div class="gm-avatar">{{ m.name[0].upper() }}</div>
+                <a href="/profile/{{ m.id }}" class="gm-avatar">{{ m.name[0].upper() }}</a>
                 <div class="gm-info">
-                    <span class="gm-name">{{ m.name }}</span>
+                    <a href="/profile/{{ m.id }}" class="gm-name">{{ m.name }} <span class="blood-badge"
+                            style="padding: 2px 6px; font-size: 0.7rem;">{{ m.blood_group }}</span></a>
                     <span class="gm-pts">⭐ {{ m.points }} pts</span>
                 </div>
                 <span class="{% if m.available %}badge-avail{% else %}badge-unavail{% endif %}">
@@ -30,7 +42,7 @@
             </div>
             {% endfor %}
             {% if members|length > 5 %}
-            <p class="more-members">+{{ members|length - 5 }} more donors</p>
+            <p class="more-members">+{{ members|length - 5 }} more donors in {{ location }}</p>
             {% endif %}
         </div>
     </div>

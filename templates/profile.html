@@ -22,14 +22,23 @@
                 <span class="pi-value points-count">{{ user.points }}</span>
             </div>
             <div class="pi-item">
+                <span class="pi-label">🎂 Age</span>
+                <span class="pi-value">{{ user.age if user.age is not none else 'N/A' }} yrs</span>
+            </div>
+            <div class="pi-item">
                 <span class="pi-label">🩸 Last Donation</span>
                 <span class="pi-value">{{ user.last_donation if user.last_donation else 'Never' }}</span>
             </div>
             <div class="pi-item">
                 <span class="pi-label">⏳ Can Donate?</span>
-                <span class="pi-value {% if user.can_donate %}text-green{% else %}text-red{% endif %}">
-                    {% if user.can_donate %}Yes ✅{% else %}No (90-day wait) ❌{% endif %}
-                </span>
+                {% if not user.age_eligible %}
+                <span class="pi-value text-red">No – Age ineligible ❌</span>
+                {% elif user.can_donate %}
+                <span class="pi-value text-green">Yes ✅</span>
+                {% else %}
+                {% set days_left = 90 - (today - user.last_donation).days %}
+                <span class="pi-value text-red">No – {{ days_left }}d wait ❌</span>
+                {% endif %}
             </div>
         </div>
 

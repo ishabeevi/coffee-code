@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import os
+from sqlalchemy import inspect as sa_inspect, text
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bloodapp_secret_2025'
@@ -36,16 +37,44 @@ class User(db.Model):
     location       = db.Column(db.String(100), nullable=False)
     contact        = db.Column(db.String(15),  unique=True, nullable=False)
     password       = db.Column(db.String(200), nullable=False)
-    available      = db.Column(db.Boolean, default=True)
+    available_toggle = db.Column('available', db.Boolean, default=True)
     last_donation  = db.Column(db.Date, nullable=True)
     points         = db.Column(db.Integer, default=0)
+    dob            = db.Column(db.Date, nullable=True)
+
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+
+    @property
+    def age(self):
+        """Returns the donor's age in years, or None if dob is not set."""
+        if self.dob is None:
+            return None
+        today = date.today()
+        return today.year - self.dob.year - (
+            (today.month, today.day) < (self.dob.month, self.dob.day)
+        )
+
+    @property
+    def age_eligible(self):
+        """Returns True if donor is between 18 and 50 years old."""
+        if self.age is None:
+            return True  # no dob set – don't block
+        return 18 <= self.age <= 50
 
     @property
     def can_donate(self):
-        """Returns True if 90 days have passed since last donation (or never donated)."""
+        """Returns True if age-eligible AND 90 days have passed since last donation."""
+        if not self.age_eligible:
+            return False
         if self.last_donation is None:
             return True
         return (date.today() - self.last_donation).days >= 90
+
+    @property
+    def available(self):
+        """Final availability: manual toggle MUST be On AND donor must be eligible to donate."""
+        return self.available_toggle and self.can_donate
 
 
 class BloodRequest(db.Model):
@@ -58,6 +87,22 @@ class BloodRequest(db.Model):
     created_at   = db.Column(db.Date, default=date.today)
     requester    = db.relationship('User', backref='requests')
 
+    def __init__(self, **kwargs):
+        super(BloodRequest, self).__init__(**kwargs)
+
+
+class Notification(db.Model):
+    id         = db.Column(db.Integer, primary_key=True)
+    user_id    = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message    = db.Column(db.String(500), nullable=False)
+    req_id     = db.Column(db.Integer, db.ForeignKey('blood_request.id'), nullable=True)
+    is_read    = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user       = db.relationship('User', backref='notifications')
+
+    def __init__(self, **kwargs):
+        super(Notification, self).__init__(**kwargs)
+
 
 # ─────────────────────────────────────────────
 # Helper: get logged-in user
@@ -66,6 +111,24 @@ def current_user():
     if 'user_id' in session:
         return db.session.get(User, session['user_id'])
     return None
+
+def get_compatible_donors(blood_group, location):
+    compatible_types = COMPATIBLE_DONORS.get(blood_group, [blood_group])
+    # Case-insensitive location match
+    loc = location.strip().lower()
+    return User.query.filter(
+        User.blood_group.in_(compatible_types),
+        User.location == loc,
+        User.available_toggle == True
+    ).all()
+
+@app.context_processor
+def inject_notifications():
+    user = current_user()
+    if user:
+        unread_count = Notification.query.filter_by(user_id=user.id, is_read=False).count()
+        return dict(unread_count=unread_count)
+    return dict(unread_count=0)
 
 # ─────────────────────────────────────────────
 # Home
@@ -97,15 +160,24 @@ def register():
             except ValueError:
                 pass
 
+        dob = None
+        raw_dob = request.form.get('dob', '').strip()
+        if raw_dob:
+            try:
+                dob = date.fromisoformat(raw_dob)
+            except ValueError:
+                pass
+
         new_user = User(
             name          = request.form['name'],
             blood_group   = request.form['blood_group'].strip().upper(),
             location      = request.form['location'].strip().lower(),
             contact       = request.form['contact'].strip(),
             password      = hashed_pw,
-            available     = True,
+            available_toggle = True,
             last_donation = last_don,
-            points        = 0
+            points        = 0,
+            dob           = dob
         )
         db.session.add(new_user)
         db.session.commit()
@@ -158,6 +230,20 @@ def create_request():
         )
         db.session.add(new_req)
         db.session.commit()
+
+        # Send notifications to compatible donors in the same location
+        compatible = get_compatible_donors(new_req.blood_group, new_req.location)
+        for donor in compatible:
+            if donor.id != user.id: # Don't notify the requester
+                msg = f"🚨 URGENT: {new_req.blood_group} donor needed at {new_req.hospital}!" if new_req.emergency else f"🩸 Blood Request: {new_req.blood_group} needed at {new_req.hospital}."
+                notif = Notification(
+                    user_id=donor.id,
+                    message=msg,
+                    req_id=new_req.id
+                )
+                db.session.add(notif)
+        db.session.commit()
+
         flash('Blood request posted!', 'success')
         return redirect(url_for('view_requests'))
 
@@ -196,7 +282,7 @@ def match_donors(req_id):
     # Fetch all available donors with compatible blood group
     candidates = User.query.filter(
         User.blood_group.in_(compatible_types),
-        User.available == True
+        User.available_toggle == True
     ).all()
 
     # Filter: must satisfy 90-day rule; same location gets prioritized
@@ -238,9 +324,13 @@ def donate(req_id):
         flash('Request not found.', 'error')
         return redirect(url_for('view_requests'))
 
+    if not user.age_eligible:
+        flash(f'Sorry, donors must be between 18 and 50 years old. Your age ({user.age}) does not meet the eligibility criteria.', 'error')
+        return redirect(url_for('match_donors', req_id=req_id))
+
     if not user.can_donate:
         days_left = 90 - (date.today() - user.last_donation).days
-        flash(f'You must wait {days_left} more day(s) before donating again (90-day rule).', 'error')
+        flash(f'You must wait {days_left} more day(s) before donating again (90-day / 3-month rule).', 'error')
         return redirect(url_for('match_donors', req_id=req_id))
 
     # Award points
@@ -262,10 +352,13 @@ def toggle_availability():
         flash('Please login first.', 'error')
         return redirect(url_for('login'))
 
-    user.available = not user.available
+    user.available_toggle = not user.available_toggle
     db.session.commit()
     status = 'Available' if user.available else 'Not Available'
-    flash(f'Your status is now: {status}', 'success')
+    if user.available_toggle and not user.can_donate:
+        flash(f'Toggle set to On, but your status remains "{status}" due to donation cooldown.', 'success')
+    else:
+        flash(f'Your status is now: {status}', 'success')
     return redirect(url_for('profile'))
 
 # ─────────────────────────────────────────────
@@ -277,7 +370,20 @@ def profile():
     if not user:
         flash('Please login first.', 'error')
         return redirect(url_for('login'))
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user, today=date.today())
+
+@app.route('/profile/<int:user_id>')
+def public_profile(user_id):
+    current_u = current_user()
+    target_user = db.session.get(User, user_id)
+    if not target_user:
+        flash('Donor not found.', 'error')
+        return redirect(url_for('groups'))
+    
+    return render_template('public_profile.html', 
+                           user=current_u, 
+                           target_user=target_user, 
+                           today=date.today())
 
 # ─────────────────────────────────────────────
 # Leaderboard
@@ -289,6 +395,35 @@ def leaderboard():
     return render_template('leaderboard.html', user=user, top_donors=top_donors)
 
 # ─────────────────────────────────────────────
+# Notifications
+# ─────────────────────────────────────────────
+@app.route('/notifications')
+def notifications():
+    user = current_user()
+    if not user:
+        flash('Please login to view notifications.', 'error')
+        return redirect(url_for('login'))
+    
+    # Get all notifications for the user, latest first
+    all_notifs = Notification.query.filter_by(user_id=user.id).order_by(Notification.created_at.desc()).all()
+    return render_template('notifications.html', user=user, notifications=all_notifs)
+
+@app.route('/notifications/read/<int:notif_id>')
+def read_notification(notif_id):
+    user = current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    notif = db.session.get(Notification, notif_id)
+    if notif and notif.user_id == user.id:
+        notif.is_read = True
+        db.session.commit()
+        if notif.req_id:
+            return redirect(url_for('match_donors', req_id=notif.req_id))
+    
+    return redirect(url_for('notifications'))
+
+# ─────────────────────────────────────────────
 # Groups
 # ─────────────────────────────────────────────
 @app.route('/groups')
@@ -296,18 +431,18 @@ def groups():
     user = current_user()
     all_users = User.query.all()
 
-    # Group by blood_group + location
+    # Group primarily by location
     groups_data = {}
     for u in all_users:
-        key = (u.blood_group.upper(), u.location.strip().lower().title())
-        if key not in groups_data:
-            groups_data[key] = []
-        groups_data[key].append(u)
+        loc = u.location.strip().lower().title()
+        if loc not in groups_data:
+            groups_data[loc] = []
+        groups_data[loc].append(u)
 
-    # Sort keys: blood group alphabetically
-    sorted_groups = sorted(groups_data.items(), key=lambda x: (x[0][0], x[0][1]))
+    # Sort locations alphabetically
+    sorted_locations = sorted(groups_data.items(), key=lambda x: x[0])
 
-    return render_template('groups.html', user=user, groups=sorted_groups)
+    return render_template('groups.html', user=user, groups=sorted_locations)
 
 
 # ─────────────────────────────────────────────
@@ -316,4 +451,20 @@ def groups():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+
+        # ── Auto-migrate: add any missing columns so the DB never gets out of sync ──
+        inspector = sa_inspect(db.engine)
+
+        existing_user_cols = {c['name'] for c in inspector.get_columns('user')}
+        if 'dob' not in existing_user_cols:
+            db.session.execute(text('ALTER TABLE "user" ADD COLUMN dob DATE'))
+            db.session.commit()
+            print('[migration] Added column: user.dob')
+
+        existing_req_cols = {c['name'] for c in inspector.get_columns('blood_request')}
+        # Add future BloodRequest columns here the same way if needed
+
+        # Re-create all tables at least once to ensure Notification table exists
+        db.create_all()
+
     app.run(debug=True)
