@@ -77,11 +77,11 @@ python app.py
 ### For Software:
 
 #### Screenshots
-- ![c:\Users\Dell\OneDrive\画像\Screenshots\Screenshot 2026-02-21 100645.png](./static/screenshots/home.png)
+- ![Screenshot 2026-02-21 100645.png](./static/screenshots/home.png)
   *Main dashboard showing the "Every Drop Saves a Life" mission and quick actions.*
-- ![c:\Users\Dell\OneDrive\画像\Screenshots\Screenshot 2026-02-21 100710.png](./static/screenshots/groups.png)
+- ![Screenshot 2026-02-21 100710.png](./static/screenshots/groups.png)
   *Location-based donor communities showing group activity.*
-- ![c:\Users\Dell\OneDrive\画像\Screenshots\Screenshot 2026-02-21 100730.pngMatch Page](./static/screenshots/match.png)
+- ![Screenshot 2026-02-21 100730.pngMatch Page](./static/screenshots/match.png)
   *Smart matching system showing eligible donors for a specific request.*
 
 #### Diagrams
