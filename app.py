@@ -6,8 +6,14 @@ import os
 from sqlalchemy import inspect as sa_inspect, text
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'bloodapp_secret_2025'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bloodapp.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'bloodapp_secret_2025')
+
+# Use PostgreSQL on Render (DATABASE_URL env var), else fall back to SQLite locally
+_db_url = os.environ.get('DATABASE_URL', 'sqlite:///bloodapp.db')
+# Render sets postgres:// but SQLAlchemy requires postgresql://
+if _db_url.startswith('postgres://'):
+    _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

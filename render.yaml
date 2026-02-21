@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: lifelink-blood-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.10.0
+    disk:
+      name: database-disk
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 1
