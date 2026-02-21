@@ -423,6 +423,17 @@ def read_notification(notif_id):
     
     return redirect(url_for('notifications'))
 
+@app.route('/notifications/read-all')
+def read_all_notifications():
+    user = current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    Notification.query.filter_by(user_id=user.id, is_read=False).update({Notification.is_read: True})
+    db.session.commit()
+    flash('All notifications marked as read.', 'success')
+    return redirect(url_for('notifications'))
+
 # ─────────────────────────────────────────────
 # Groups
 # ─────────────────────────────────────────────

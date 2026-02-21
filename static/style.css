@@ -586,6 +586,15 @@ a {
     box-shadow: 0 4px 12px rgba(242, 120, 159, 0.35);
 }
 
+.unread-notif {
+    background: var(--rose-pale);
+    border-color: var(--rose);
+}
+
+.unread-notif:hover {
+    background: var(--rose-soft);
+}
+
 .match-info {
     flex: 1;
 }

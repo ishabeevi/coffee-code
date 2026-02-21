@@ -3,15 +3,20 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>🔔 Your Notifications</h2>
-    <p class="sub">Stay updated on blood requests and community activities</p>
+    <div>
+        <h2>🔔 Your Notifications</h2>
+        <p class="sub">Stay updated on blood requests and community activities</p>
+    </div>
+    {% if notifications and unread_count > 0 %}
+    <a href="/notifications/read-all" class="btn-secondary">Mark all as read</a>
+    {% endif %}
 </div>
 
 {% if notifications %}
 <div class="match-list">
     {% for notif in notifications %}
     <div class="match-card {% if not notif.is_read %}unread-notif{% endif %}"
-        style="border-left: 5px solid {% if not notif.is_read %}var(--rose){% else %}var(--border){% endif %}; transition: transform 0.2s;">
+        style="border-left: 5px solid {% if not notif.is_read %} var(--rose){% else %}var(--border){% endif %}; transition: transform 0.2s;">
         <div class="match-avatar">
             {% if not notif.is_read %}✨{% else %}🔔{% endif %}
         </div>
