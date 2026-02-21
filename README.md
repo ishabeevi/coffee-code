@@ -78,7 +78,7 @@ python app.py
 
 #### Screenshots
 <img src="Screenshot 2026-02-21 082357.png">
-<img src="Screenshot 2026-02-21 082411.png">
+<img src="Screenshot 2026-02-21 100710.png">
 <img src="Screenshot 2026-02-21 082428.png">
 
 #### Diagrams
